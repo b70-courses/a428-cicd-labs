@@ -38,18 +38,18 @@ node {
                         configName: 'aws ec2 test environment', 
                         transfers: [
                             sshTransfer(
-                                cleanRemote: false, 
-                                excludes: '', 
-                                execCommand: '', 
-                                execTimeout: 120000, 
-                                flatten: false, 
-                                makeEmptyDirs: false, 
-                                noDefaultExcludes: false, 
-                                patternSeparator: '[, ]+', 
-                                remoteDirectory: 'react-app/', 
-                                remoteDirectorySDF: false, 
-                                removePrefix: '', 
-                                sourceFiles: '**/*'
+                                // cleanRemote: false, 
+                                // excludes: '', 
+                                // execCommand: '', 
+                                // execTimeout: 120000, 
+                                // flatten: false, 
+                                // makeEmptyDirs: false, 
+                                // noDefaultExcludes: false, 
+                                // patternSeparator: '[, ]+', 
+                                remoteDirectory: '/home/ec2-user/.deploys/react-app', 
+                                // remoteDirectorySDF: false, 
+                                removePrefix: 'build', 
+                                sourceFiles: 'build/'
                             )
                         ], 
                         usePromotionTimestamp: false, 
