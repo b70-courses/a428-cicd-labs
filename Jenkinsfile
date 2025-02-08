@@ -21,7 +21,9 @@ node {
             }
             stage('Deliver') {
                 sh './jenkins/scripts/deliver.sh'
-                input message: 'Finished using the website? (Click "Proceed" to continue or wait 1 minute to automatically terminate the website)'
+                timeout(time: 60, unit: 'SECONDS') {
+                    input message: 'Finished using the website? (Click "Proceed" to continue or wait 1 minute to automatically terminate the website)'
+                }
                 sh './jenkins/scripts/kill.sh'
             }
         }
