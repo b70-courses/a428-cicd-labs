@@ -21,9 +21,14 @@ node {
             }
             stage('Deliver') {
                 sh './jenkins/scripts/deliver.sh'
-                timeout(time: 60, unit: 'SECONDS') {
-                    input message: 'Finished using the website? (Click "Proceed" to continue or wait 1 minute to automatically terminate the website)'
+                try {
+                    timeout(time: 60, unit: 'SECONDS') {
+                        input message: 'Finished using the website? (Click "Proceed" to continue or wait 1 minute to automatically terminate the website)'
+                    }
+                } catch (err) { 
+                    // do nothing instead of aborting so it continues to the next step 
                 }
+                // kill the process if user accepts
                 sh './jenkins/scripts/kill.sh'
             }
         }
