@@ -22,7 +22,7 @@ node {
                 try {
                     input message: 'Continue to Deploy?'
                 } catch (exception) {
-                    echo 'Something went wrong on Manual Approval'
+                    echo 'Manual Aproval : Aborted'
                     throw exception
                 }
             }
@@ -45,26 +45,27 @@ node {
                 ])
                 try {
                     timeout(time: 60, unit: 'SECONDS') {
-                        input message: 'Finished using the website? (Click "Proceed" to continue or wait 1 minute to automatically terminate the website)'
+                        input message: 'Finished checking? (Click "Proceed" to continue or wait 1 minute to automatically persist website, abort will terminate the website)'
                     }
                 } catch (err) { 
-                    echo 'Timeout reached, proceed to terminate the website...'
+                    echo 'Abort : Deployment aborted'
+                    sshPublisher(publishers: [
+                        sshPublisherDesc(
+                            configName: 'ec2-st-server-1', 
+                            transfers: [
+                                sshTransfer(
+                                    execCommand: 'rm -rf /var/www/html/react-app'
+                                )
+                            ], 
+                            usePromotionTimestamp: false, 
+                            useWorkspaceInPromotion: false, 
+                            verbose: true
+                        )
+                    ])
+                    echo 'Abort : Website terminated. Pipeline finished'
                     throw err
                 }
-                sshPublisher(publishers: [
-                    sshPublisherDesc(
-                        configName: 'ec2-st-server-1', 
-                        transfers: [
-                            sshTransfer(
-                                execCommand: 'rm -rf /var/www/html/react-app'
-                            )
-                        ], 
-                        usePromotionTimestamp: false, 
-                        useWorkspaceInPromotion: false, 
-                        verbose: true
-                    )
-                ])
-                echo 'Website terminated. Pipeline finished'
+                echo 'Website persisted. Pipeline finished'
             }
         }
     }
