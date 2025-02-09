@@ -19,7 +19,7 @@ node {
                     throw exception
                 }
             }
-            stage('Deliver') {
+            stage('Deploy') {
                 sh './jenkins/scripts/deliver.sh'
                 try {
                     timeout(time: 60, unit: 'SECONDS') {
