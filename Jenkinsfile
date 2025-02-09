@@ -34,17 +34,17 @@ node {
                 // delivers the website into EC2 instance via SSH
                 sshPublisher(publishers: [
                     sshPublisherDesc(
-                        configName: 'aws ec2 test environment', 
+                        configName: 'ec2-st-server-1', 
                         transfers: [
                             sshTransfer(
-                                remoteDirectory: '/usr/share/nginx/html/react-app', 
+                                remoteDirectory: '/var/www/html/react-app', 
                                 sourceFiles: 'build/',
                                 removePrefix: 'build', 
                             )
                         ], 
                         usePromotionTimestamp: false, 
                         useWorkspaceInPromotion: false, 
-                        verbose: false
+                        verbose: true
                     )
                 ])
             }
