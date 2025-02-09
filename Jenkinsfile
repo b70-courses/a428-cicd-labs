@@ -13,25 +13,21 @@ node {
             stage('Test') {
                 try {
                     sh './jenkins/scripts/test.sh'
-                    input message: 'Continue to deploy?'
                 } catch (exception) {
                     echo 'Failed when running test scripts (test.sh)'
                     throw exception
                 }
             }
-            stage('Deploy') {
-                sh './jenkins/scripts/deliver.sh'
+            stage('Manual Approval') {
                 try {
-                    timeout(time: 60, unit: 'SECONDS') {
-                        input message: 'Finished using the website? (Click "Proceed" to continue or wait 1 minute to automatically terminate the website)'
-                    }
-                } catch (err) { 
-                    // do nothing instead of aborting so it continues to the next step 
-                    echo 'Timeout reached, proceed to terminate the website...'
+                    input message: 'Continue to Deploy?'
+                } catch (exception) {
+                    echo 'Something went wrong on Manual Approval'
+                    throw exception
                 }
-                sh './jenkins/scripts/kill.sh'
-
-                // delivers the website into EC2 instance via SSH
+            }
+            stage('Deploy') {
+                sh 'npm run build'
                 sshPublisher(publishers: [
                     sshPublisherDesc(
                         configName: 'ec2-st-server-1', 
@@ -47,6 +43,28 @@ node {
                         verbose: true
                     )
                 ])
+                try {
+                    timeout(time: 60, unit: 'SECONDS') {
+                        input message: 'Finished using the website? (Click "Proceed" to continue or wait 1 minute to automatically terminate the website)'
+                    }
+                } catch (err) { 
+                    echo 'Timeout reached, proceed to terminate the website...'
+                    throw err
+                }
+                sshPublisher(publishers: [
+                    sshPublisherDesc(
+                        configName: 'ec2-st-server-1', 
+                        transfers: [
+                            sshTransfer(
+                                execCommand: 'rm -rf /var/www/html/react-app'
+                            )
+                        ], 
+                        usePromotionTimestamp: false, 
+                        useWorkspaceInPromotion: false, 
+                        verbose: true
+                    )
+                ])
+                echo 'Website terminated. Pipeline finished'
             }
         }
     }
